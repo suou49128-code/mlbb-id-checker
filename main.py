@@ -1,5 +1,5 @@
 import os
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, ContextTypes, filters
 
 TOKEN = os.getenv("BOT_TOKEN")
@@ -8,20 +8,13 @@ TOKEN = os.getenv("BOT_TOKEN")
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
         "🎮 MLBB ID CHECKER\n\n"
-        "UID နဲ့ Zone ID ကို ဒီပုံစံအတိုင်း ပို့ပေးပါ:\n"
+        "UID နဲ့ Zone ID ကို ဒီပုံစံအတိုင်း ပို့ပါ:\n"
         "597556997(8378)"
     )
 
 
 async def check_id(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text = update.message.text.strip()
-
-    if "(" not in text or ")" not in text:
-        await update.message.reply_text(
-            "❌ UID နဲ့ Zone ID ထည့်ပေးပါ။\n"
-            "ဥပမာ: 597556997(8378)"
-        )
-        return
 
     try:
         uid, zone_part = text.split("(", 1)
@@ -31,23 +24,23 @@ async def check_id(update: Update, context: ContextTypes.DEFAULT_TYPE):
             raise ValueError
 
     except ValueError:
-        await update.message.reply_text("❌ ID မှားနေပါတယ်။")
+        await update.message.reply_text(
+            "❌ UID နဲ့ Zone ID မှန်ကန်စွာ ထည့်ပါ။\n"
+            "ဥပမာ: 597556997(8378)"
+        )
         return
-
-    keyboard = [[
-        InlineKeyboardButton("🔵 Copy ID", callback_data=f"id_{uid}"),
-        InlineKeyboardButton("🟢 Copy Server", callback_data=f"zone_{zone}")
-    ]]
 
     await update.message.reply_text(
         f"✨ MLBB ID DETAILS ✨\n\n"
         f"👤 Name: မစစ်ဆေးရသေးပါ\n"
         f"🆔 UID: {uid}\n"
         f"🌐 Zone ID: {zone}\n"
-        f"🌍 Region: မစစ်ဆေးရသေးပါ",
-        reply_markup=InlineKeyboardMarkup(keyboard)
+        f"🌍 Region: မစစ်ဆေးရသေးပါ"
     )
 
+
+if not TOKEN:
+    raise RuntimeError("BOT_TOKEN မထည့်ရသေးပါ။")
 
 app = Application.builder().token(TOKEN).build()
 app.add_handler(CommandHandler("start", start))
